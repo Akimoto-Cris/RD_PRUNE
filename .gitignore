@@ -1,0 +1,7 @@
+**/*.ipynb
+**/*/__pycache__
+*.sh
+results/
+dicts/
+rd_retrain/
+
