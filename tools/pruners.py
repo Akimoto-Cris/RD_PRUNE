@@ -151,9 +151,9 @@ def gen_rd_curves(net, loader, args, prefix=None, suffix=None):
 
 def gen_rd_curves_synth_data(net, args, prefix=None, suffix=None):
     if prefix is None:
-        path_output = "./%s_ndz_%04d_rdcurves_channelwise_opt_dist" % (args.model, args.maxsps)
+        path_output = "./%s_ndz_%04d_rdcurves_channelwise_opt_dist_synth" % (args.model, args.maxsps)
     else:
-        path_output = "%s/%s_ndz_%04d_rdcurves_channelwise_opt_dist/%s/" % (
+        path_output = "%s/%s_ndz_%04d_rdcurves_channelwise_opt_dist_synth/%s/" % (
             prefix,
             args.model,
             args.maxsps,
@@ -188,14 +188,14 @@ def gen_rd_curves_synth_data(net, args, prefix=None, suffix=None):
             print(f"generating curves for layer-{layerid}")
             layer_weights = layers[layerid].weight.clone()
 
-            rst_amount = torch.ones(args.maxsps).cuda()
-            rst_dist = torch.ones(args.maxsps).cuda()
+            rst_amount = torch.ones(args.maxsps + 1).cuda()
+            rst_dist = torch.ones(args.maxsps + 1).cuda()
 
             min_amount = 0
 
-            for d in range(args.maxsps):
+            for d in range(args.maxsps + 1):
                 amount = (1.0 - min_amount) * d / args.maxsps + min_amount
-                rst_amount[args.maxsps - d - 1] = amount
+                rst_amount[d] = amount
                 prune_weights = algo.pruning(layers[layerid].weight, amount)
 
                 layers[layerid].weight.data = prune_weights
@@ -206,7 +206,7 @@ def gen_rd_curves_synth_data(net, args, prefix=None, suffix=None):
                 else:
                     cur_dist = ((Y - Y_hat) ** 2).mean()
 
-                rst_dist[args.maxsps - d - 1] = cur_dist
+                rst_dist[d] = cur_dist
                 layers[layerid].weight.data = layer_weights
 
             io.savemat(

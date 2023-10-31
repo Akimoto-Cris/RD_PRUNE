@@ -225,7 +225,7 @@ def dp_pruning(layers, rd_dist, rd_phi, target_sparsity, prev_pc, g=None, device
         survs = einops.repeat(survs, "n -> n p", p=max(len(sorted_rd_phi[n]) for n in range(nlayers)))
 
         for n in tqdm.tqdm(range(nlayers)):
-            dp[n, 0] = sorted_rd_dist[n][sorted_rd_phi[0] == 1] + (dp[n-1, 0] if n > 1 else 0)
+            dp[n, 0] = sorted_rd_dist[n][sorted_rd_phi[n] == 1] + (dp[n-1, 0] if n > 1 else 0)
             g[n, 0] = closest_value_index_torch(sorted_rd_phi[n], 1)
 
             max_weights_n = min(sum(sorted_nweights[:n+1]), target_nweights)
